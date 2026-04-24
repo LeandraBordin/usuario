@@ -6,6 +6,7 @@ import com.leandra.usuario.infrastructure.entity.Usuario;
 import com.leandra.usuario.infrastructure.exceptions.ConflictException;
 import com.leandra.usuario.infrastructure.exceptions.ResourceNotFoundException;
 import com.leandra.usuario.infrastructure.repository.UsuarioRepository;
+import com.leandra.usuario.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ public class usuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioConverter usuarioConverter;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO){
         try{
@@ -47,5 +49,20 @@ public class usuarioService {
     }
     public void deletaUsuarioPorEmail(String email){
         usuarioRepository.deleteByEmail(email);
+    }
+
+    public UsuarioDTO atualizaDadosUsuario(String token, UsuarioDTO usuarioDTO){
+        // busca email do usuario pelo token
+        String email = jwtUtil.extractUsername(token.substring(7));
+        // encripta senha de usuario
+        usuarioDTO.setSenha(usuarioDTO.getSenha() != null ? passwordEncoder.encode(usuarioDTO.getSenha()) : null );
+        //busca usuario no banco de dados
+        Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Email nao localizado"));
+
+        //mesclou dados do usuario recebido com o usuario do BD
+        Usuario usuario = usuarioConverter.updateUsuario(usuarioDTO,usuarioEntity);
+
+        //salva dados do usuario convertido e converte para UsuarioDTO
+        return  usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario)) ;
     }
 }
