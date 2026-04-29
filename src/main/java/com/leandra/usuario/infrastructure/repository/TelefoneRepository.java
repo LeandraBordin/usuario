@@ -5,4 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TelefoneRepository extends JpaRepository<Telefone,Long> {
+    Long id(Long id);
 }
