@@ -15,4 +15,5 @@ public class EnderecoDTO {
     private String cidade;
     private String estado;
     private String cep;
+    private Long usuario_id;
 }
