@@ -29,7 +29,7 @@ public class UsuarioController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(usuarioDTO.getEmail(), usuarioDTO.getSenha())
         );
-        return jwtUtil.generateToken(authentication.getName());
+        return "Bearer "    + jwtUtil.generateToken(authentication.getName());
     }
     @GetMapping
     public ResponseEntity<UsuarioDTO> buscaUsuarioPorEmail(@RequestParam("email")String email){
